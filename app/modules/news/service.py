@@ -18,13 +18,14 @@ class CategoryService:
 
     @staticmethod
     async def get_category(db: AsyncSession, params: PageParams):
+        """获取所有新闻类别"""
         return await CategoryRepository.get_all_category(
             db, params.offset, params.limit
         )
 
     @staticmethod
     async def get_news_list(db: AsyncSession, category_id, params: PageParams):
-
+        """获取指定新闻类别下新闻列表"""
         data = await CategoryRepository.get_news_list(
             db, category_id, params.offset, params.limit
         )

@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.common.pagination import Page, PageParams, get_page_params
-from app.common.responses import APIResponse, success, success_without_schema
+from app.common.responses import APIResponse, success
 from app.core.database import get_db
 from app.core.logging import get_logger
 from app.modules.news.schema import CategotyOutSchema
@@ -45,6 +45,16 @@ async def get_news_list(
     category_id: int = Query(alias="categoryId"),
     params: PageParams = Depends(get_page_params),
 ):
+    """获取执行类别下新闻列表"""
     # 处理分页规则—> 查询新闻列表 -> 计算总量 -> 计算是否还有更多
     data = await CategoryService.get_news_list(db, category_id, params)
-    return success_without_schema(data)
+    return success(data)
+
+
+@router.get("/detail")
+async def get_detail_by_id(
+    db: AsyncSession = Depends(get_db), id: int = Query(..., description="新闻ID")
+):
+    """根据新闻ID获取详情"""
+    data = {}
+    return success(data)
