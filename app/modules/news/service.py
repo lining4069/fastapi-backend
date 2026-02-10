@@ -13,8 +13,22 @@ class CategoryService:
         data, total = await CategoryRepository.get_all_categoty_paginated(
             db, params.offset, params.limit
         )
-        return Page(data=data, page=params.page, limit=params.limit, total=total)
+        hasMore = params.offset + params.limit < total
+        return Page(list=data, total=total, hasMore=hasMore)
 
     @staticmethod
-    async def get_category(db: AsyncSession, skip: int = 0, limit: int = 100):
-        return await CategoryRepository.get_all_categoty(db, skip, limit)
+    async def get_category(db: AsyncSession, params: PageParams):
+        return await CategoryRepository.get_all_category(
+            db, params.offset, params.limit
+        )
+
+    @staticmethod
+    async def get_news_list(db: AsyncSession, category_id, params: PageParams):
+
+        data = await CategoryRepository.get_news_list(
+            db, category_id, params.offset, params.limit
+        )
+        total = await CategoryRepository.get_news_count(db, category_id)
+        hasMore = params.calc_has_more(total)
+
+        return Page(list=data, total=total, hasMore=hasMore)

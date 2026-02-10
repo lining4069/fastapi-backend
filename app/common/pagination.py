@@ -1,33 +1,33 @@
+from dataclasses import dataclass
 from typing import Generic, Sequence, TypeVar
 
-from fastapi import status
-from pydantic import BaseModel, ConfigDict, Field
+from fastapi import Query
 
 
-class PageParams(BaseModel):
+class PageParams:
     """分页参数依赖项"""
 
-    page: int = Field(1, ge=1)  # 页数
-    limit: int = Field(10, ge=1, le=100)  #  一页显示多少条
+    def __init__(self, page: int, limit: int):
+        self.page = page
+        self.limit = limit
+        self.offset = (page - 1) * limit
 
-    @property
-    def offset(self) -> int:
-        return (self.page - 1) * self.limit
+    def calc_has_more(self, total: int) -> bool:
+        return self.page * self.limit < total
+
+
+def get_page_params(
+    page: int = Query(1, ge=1, description="页码"),
+    limit: int = Query(10, alias="pageSize", ge=1, le=100, description="每页数量"),
+) -> PageParams:
+    return PageParams(page=page, limit=limit)
 
 
 T = TypeVar("T")
 
 
-class Page(BaseModel, Generic[T]):
-    """页"""
-
-    code: str = str(
-        status.HTTP_200_OK,
-    )
-    message: str = "Success"
-    data: Sequence[T]
-    page: int
-    limit: int
+@dataclass
+class Page(Generic[T]):
+    list: Sequence[T]
     total: int
-
-    model_config = ConfigDict(from_attributes=True)
+    hasMore: bool

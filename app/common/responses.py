@@ -15,4 +15,13 @@ class APIResponse(BaseModel, Generic[T]):
 
 # 成功响应
 def success(data=None, message: str = "Success"):
+    """路由处理函数 设置了response_model=pydantic Model"""
     return APIResponse(code=status.HTTP_200_OK, message=message, data=data)
+
+
+def success_without_schema(data=None, message: str = "Success"):
+    """
+    路由处理函数 不设置 response_model=pydantic Model
+    只是简单
+    """
+    return {"code": status.HTTP_200_OK, "message": message, "data": data}

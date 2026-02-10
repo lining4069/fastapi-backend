@@ -8,9 +8,6 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 APP_BASE_DIR = Path(__file__).resolve().parent.parent
 
 ENVFILE_PATH_BY_ENV = os.path.join(APP_BASE_DIR, "env", f".env.{os.getenv('ENV')}")
-print("*" * 1000)
-print(ENVFILE_PATH_BY_ENV)
-print("*" * 1000)
 
 
 class Settings(BaseSettings):
