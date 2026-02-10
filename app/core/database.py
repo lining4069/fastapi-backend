@@ -7,11 +7,11 @@ ASYNC_DATABASE_URL = f"mysql+aiomysql://{settings.DATABASE_USER}:{settings.DATAB
 
 async_agine = create_async_engine(
     url=ASYNC_DATABASE_URL,
-    echo=False,  # 输出sql日志
-    pool_size=5,  # 连接池中保持的持久连接数
-    max_overflow=5,  # 峰值额外连接
-    pool_timeout=30,  # 等待连接的超时时间
-    pool_recycle=1800,  # 30分钟回收一次连接 防止服务器断开
+    echo=settings.DB_ECHO,  # 输出sql日志
+    pool_size=settings.DB_POOL_SIZE,  # 连接池中保持的持久连接数
+    max_overflow=settings.DB_MAX_OVERFLOW,  # 峰值额外连接
+    pool_timeout=settings.DB_POOL_TIMEOUT,  # 等待连接的超时时间
+    pool_recycle=settings.DB_POOL_RECYCLE,  # 回收一次连接间隔 防止服务器断开
     pool_pre_ping=True,  # 每次去连接前ping一下
 )
 
