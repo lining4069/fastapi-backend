@@ -33,7 +33,7 @@ async def business_exception_handler(
 ):
     if isinstance(exc, BusinessException):
         return JSONResponse(
-            status_code=200,  # 有些团队固定 200
+            status_code=200,  # 默认固定 200
             content={
                 "code": exc.code,
                 "message": exc.message,

@@ -21,7 +21,7 @@ class Base(DeclarativeBase):
     )
 
 
-class BaseOutputSchema(BaseModel):
+class BaseSchema(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     created_at: datetime
     updated_at: datetime
@@ -29,7 +29,6 @@ class BaseOutputSchema(BaseModel):
     @field_serializer(
         "created_at",
         "updated_at",
-        when_used="json",
     )
     def serialize_datetime(self, value: datetime | None):
         if value is None:

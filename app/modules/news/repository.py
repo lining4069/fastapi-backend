@@ -1,7 +1,8 @@
 # DB操作
 from typing import Sequence
 
-from sqlalchemy import desc, func, select
+from sqlalchemy import desc, func, select, update
+from sqlalchemy.engine import CursorResult
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.modules.news.model import Category, News
@@ -33,6 +34,10 @@ class CategoryRepository:
 
         return data.scalars().all()
 
+
+class NewsRepository:
+    """新闻相关"""
+
     @staticmethod
     async def get_news_list(
         db: AsyncSession, category_id: int, offset: int, limit: int
@@ -56,3 +61,38 @@ class CategoryRepository:
         total = await db.execute(stmt_total)
 
         return total.scalar_one()
+
+    @staticmethod
+    async def get_news_by_id(db: AsyncSession, news_id: int):
+        """根据新闻id查数据"""
+        stmt = select(News).where(News.id == news_id)
+        result = await db.execute(stmt)
+        return result.scalar_one_or_none()
+
+    @staticmethod
+    async def increase_news_views(db: AsyncSession, news_id: int):
+        """新闻的浏览量 +1"""
+        stmt = update(News).where(News.id == news_id).values(views=News.views + 1)
+        result = await db.execute(stmt)
+
+        # 处理未知异常导致where到数据但是update异常，未更新数据
+        assert isinstance(result, CursorResult)
+        return result.rowcount > 0
+
+    @staticmethod
+    async def get_related_news(
+        db: AsyncSession, news_id: int, category_id: int, limit: int = 5
+    ):
+        """
+        查询相关文章
+        阅览量+发布时间倒序
+        """
+        stmt = (
+            select(News)
+            .where(News.category_id == category_id, News.id != news_id)
+            .order_by(News.views.desc(), News.publish_time.desc())
+            .limit(limit)
+        )
+        result = await db.execute(stmt)
+
+        return result.scalars().all()
