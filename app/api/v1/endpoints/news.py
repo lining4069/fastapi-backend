@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.common.pagination import Page, PageParams, get_page_params
-from app.common.responses import APIResponse, success
+from app.common.responses import APIResponse
 from app.core.database import get_db
 from app.core.logging import get_logger
 from app.modules.news.schema import CategotyOutSchema, NewsDetailSchema, NewsSchema
@@ -28,7 +28,7 @@ async def get_categories_paginated(
 ):
     """Page 分页器下的获取新闻类别"""
     data = await CategoryService.get_category_paginated(db, params)
-    return success(data)
+    return APIResponse.success(data)
 
 
 @router.get("/categories", response_model=APIResponse[List[CategotyOutSchema]])
@@ -38,7 +38,7 @@ async def get_categories(
     """获取新闻类别"""
     logger.info("获取新闻类别接口: '/categories' 被访问")
     data = await CategoryService.get_category(db, params)
-    return success(data=data)
+    return APIResponse.success(data=data)
 
 
 @router.get("/list", response_model=APIResponse[Page[NewsSchema]])
@@ -50,10 +50,10 @@ async def get_news_list(
     """获取执行类别下新闻列表"""
     # 处理分页规则—> 查询新闻列表 -> 计算总量 -> 计算是否还有更多
     logger.info(
-        f"获取执行类别下新闻列表: '/list',被访问, id: {category_id},页码页数: {params}"
+        f"获取执行类别下新闻列表: '/list',被访问, id: {category_id},页码页数: {params.__dict__}"
     )
     data = await NewsService.get_news_list(db, category_id, params)
-    return success(data)
+    return APIResponse.success(data)
 
 
 @router.get("/detail", response_model=APIResponse[NewsDetailSchema])
@@ -72,4 +72,4 @@ async def get_detail_by_id(
     result.related_news = [
         NewsSchema.model_validate(news) for news in (related_news or [])
     ]
-    return success(result)
+    return APIResponse.success(result)

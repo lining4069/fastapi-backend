@@ -30,6 +30,8 @@ class Settings(BaseSettings):
     ALLOW_CREDENTIALS: bool
     ALLOW_METHODS: List[str]
     ALLOW_HEADERS: List[str]
+    # Token 有效期
+    TOKEN_VALID_DURATION_DAYS: int
 
     model_config = SettingsConfigDict(
         env_file=ENVFILE_PATH_BY_ENV, env_file_encoding="utf-8"

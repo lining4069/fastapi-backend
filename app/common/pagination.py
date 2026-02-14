@@ -1,7 +1,7 @@
-from dataclasses import dataclass
 from typing import Generic, Sequence, TypeVar
 
 from fastapi import Query
+from pydantic import BaseModel, ConfigDict
 
 
 class PageParams:
@@ -20,14 +20,16 @@ def get_page_params(
     page: int = Query(1, ge=1, description="页码"),
     limit: int = Query(10, alias="pageSize", ge=1, le=100, description="每页数量"),
 ) -> PageParams:
+    """获取分页参数"""
     return PageParams(page=page, limit=limit)
 
 
 T = TypeVar("T")
 
 
-@dataclass
-class Page(Generic[T]):
+class Page(BaseModel, Generic[T]):
     list: Sequence[T]
     total: int
     hasMore: bool
+
+    model_config = ConfigDict(from_attributes=True)
