@@ -1,6 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.common.exceptions import UserExistsError
+from app.common.exceptions import UserExistsException
 from app.modules.users.repository import UserRepository
 from app.modules.users.schema import UserAuthResponse, UserInfoResponse, UserRequest
 
@@ -13,7 +13,7 @@ class UserService:
             db, user_data.username
         )
         if existing_user:
-            raise UserExistsError(user_data.username)
+            raise UserExistsException(user_data.username)
         # 创建用户
         user = await UserRepository.create_user(db, user_data)
         # 创建Token

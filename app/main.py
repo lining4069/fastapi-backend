@@ -1,13 +1,8 @@
 from fastapi import FastAPI
-from fastapi.exceptions import HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.v1.api import api_router
-from app.common.exceptions import (
-    BusinessException,
-    business_exception_handler,
-    http_exception_handler,
-)
+from app.common.exception_handlers import register_exception_handlers
 from app.core.config import settings
 from app.core.logging import setup_logging
 
@@ -31,8 +26,7 @@ def setup() -> FastAPI:
     # 导入路由
     app.include_router(api_router, prefix="/api")
     # 注册exception处理
-    app.add_exception_handler(HTTPException, http_exception_handler)
-    app.add_exception_handler(BusinessException, business_exception_handler)
+    register_exception_handlers(app)
 
     return app
 
