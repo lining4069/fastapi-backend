@@ -10,5 +10,6 @@ def get_hash_password(password: str) -> str:
     return pwd_content.hash(password)
 
 
-if __name__ == "__main__":
-    print(get_hash_password("12345679"))
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    """校验密码"""
+    return pwd_content.verify(plain_password, hashed_password)

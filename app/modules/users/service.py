@@ -1,8 +1,40 @@
+from datetime import datetime
+
+from fastapi import Depends, Header
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.common.exceptions import UserExistsException
+from app.common.exceptions import (
+    InvalidCredentialsException,
+    PwdInvaildException,
+    TokenExpiredException,
+    UserExistsException,
+    UserNotFoundException,
+)
+from app.core.database import get_db
+from app.core.security import verify_password
+from app.modules.users.models import User, UserToken
 from app.modules.users.repository import UserRepository
 from app.modules.users.schema import UserAuthResponse, UserInfoResponse, UserRequest
+
+
+async def get_current_user(
+    authorization: str = Header(..., alias="Authorization"),
+    db: AsyncSession = Depends(get_db),
+) -> User:
+    """获取当前有效用户"""
+    token = authorization.replace("Bearer ", "")
+    valid_token = await UserRepository.verify_token(db, token)
+    if not isinstance(valid_token, UserToken):
+        raise InvalidCredentialsException()
+
+    if valid_token.expires_at < datetime.now():
+        raise TokenExpiredException()
+
+    user = await UserRepository.get_user_by_token(db, valid_token)
+    if not isinstance(user, User):
+        raise UserNotFoundException(f"ID: {valid_token.user_id}")
+
+    return user
 
 
 class UserService:
@@ -21,4 +53,26 @@ class UserService:
         # 构建,返回UserAuthResponse
         return UserAuthResponse(
             token=token, userInfo=UserInfoResponse.model_validate(user)
+        )
+
+    @staticmethod
+    async def auth_user(db: AsyncSession, user_data: UserRequest):
+        # 检查用户是否已经存在
+        existing_user = await UserRepository.get_user_by_username(
+            db, user_data.username
+        )
+        if not existing_user:
+            raise UserNotFoundException(user_data.username)
+
+        # 验证密码是否正确
+        pwd_verify = verify_password(user_data.password, existing_user.password)
+        if not pwd_verify:
+            raise PwdInvaildException(user_data.username)
+
+        # 创建Token
+        token = await UserRepository.create_token(db, existing_user.id)
+
+        # 构建,返回UserAuthResponse
+        return UserAuthResponse(
+            token=token, userInfo=UserInfoResponse.model_validate(existing_user)
         )

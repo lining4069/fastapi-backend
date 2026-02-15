@@ -48,3 +48,17 @@ class UserRepository:
             db.add(user_token)
             await db.commit()
         return token
+
+    @staticmethod
+    async def verify_token(db: AsyncSession, token: str) -> UserToken | None:
+        """查询Token对应数据库表数据行"""
+        query = select(UserToken).where(UserToken.token == token)
+        result = await db.execute(query)
+        return result.scalar_one_or_none()
+
+    @staticmethod
+    async def get_user_by_token(db: AsyncSession, user_token: UserToken) -> User | None:
+        """根据Token获取用户"""
+        query = select(User).where(User.id == user_token.user_id)
+        result = await db.execute(query)
+        return result.scalar_one_or_none()

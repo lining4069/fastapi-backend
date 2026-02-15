@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Optional
 
 from sqlalchemy import DateTime, Enum, ForeignKey, Index, Integer, String
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column
 
 from app.common.base import Base
 
@@ -47,11 +47,7 @@ class User(Base):
         return f"<User(id={self.id}, username='{self.username}', nickname='{self.nickname}')>"
 
 
-class UserBase(DeclarativeBase):
-    pass
-
-
-class UserToken(UserBase):
+class UserToken(Base):
     """
     ⽤户令牌表ORM模型
     """
@@ -73,9 +69,6 @@ class UserToken(UserBase):
     )
     expires_at: Mapped[datetime] = mapped_column(
         DateTime, nullable=False, comment="过期时间"
-    )
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime, default=datetime.now(), comment="创建时间"
     )
 
     def __repr__(self):

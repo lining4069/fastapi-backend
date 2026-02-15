@@ -14,15 +14,22 @@ class UserExistsException(BusinessException):
 class UserNotFoundException(BusinessException):
     """用户不存在"""
 
-    def __init__(self, user_id: int):
-        super().__init__(message=f"用户 ID {user_id} 不存在", code=404)
+    def __init__(self, username: str):
+        super().__init__(message=f"用户 {username} 不存在", code=404)
+
+
+class PwdInvaildException(BusinessException):
+    """密码无效"""
+
+    def __init__(self, username: str):
+        super().__init__(message=f"用户 {username} 输入的密码错误", code=401)
 
 
 class InvalidCredentialsException(BusinessException):
     """凭据无效"""
 
     def __init__(self):
-        super().__init__(message="用户名或密码错误", code=401)
+        super().__init__(message="非法的用户凭证", code=401)
 
 
 class TokenExpiredException(BusinessException):
