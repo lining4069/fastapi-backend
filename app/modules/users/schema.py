@@ -9,8 +9,8 @@ from app.common.base import BaseSchema
 class UserRequest(BaseModel):
     """用户注册"""
 
-    username: str
-    password: str
+    username: str = Field(..., description="用户名")
+    password: str = Field(..., min_length=6, max_length=16, description="密码")
 
 
 class GenderEnum(str, Enum):
@@ -60,3 +60,12 @@ class UserUpdateRequest(BaseModel):
     gender: Optional[str] = None
     bio: Optional[str] = None
     phone: Optional[str] = None
+
+
+class PwdUpdatedRequest(BaseModel):
+    """用户更新密码请求体"""
+
+    old_pwd: str = Field(..., alias="oldPassword", description="旧密码")
+    new_pwd: str = Field(
+        ..., alias="newPassword", min_length=6, max_length=16, description="新密码"
+    )

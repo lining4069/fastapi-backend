@@ -3,16 +3,18 @@ from venv import logger
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.common.auth import get_current_user
 from app.common.responses import APIResponse
 from app.core.database import get_db
 from app.modules.users.models import User
 from app.modules.users.schema import (
+    PwdUpdatedRequest,
     UserAuthResponse,
     UserInfoResponse,
     UserRequest,
     UserUpdateRequest,
 )
-from app.modules.users.service import UserService, get_current_user
+from app.modules.users.service import UserService
 
 router = APIRouter()
 
@@ -56,3 +58,18 @@ async def update_user(
     logger.info("接口 用户更新 :'/update' 被访问")
     result = await UserService.update_user(db, user, update_data)
     return APIResponse.success(data=result, message="更新用户信息成功")
+
+
+@router.put("/password", response_model=APIResponse)
+async def update_password(
+    pwd_data: PwdUpdatedRequest,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    修改密码
+    认证Token -> 校验旧密码 -> 加密新密码 -> 更新数据库
+    """
+    logger.info("接口 更新密码 :'/password' 被访问")
+    result = await UserService.change_password(db, user, pwd_data)
+    return APIResponse.success(data=result)

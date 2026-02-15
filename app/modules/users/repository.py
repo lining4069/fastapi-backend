@@ -81,3 +81,14 @@ class UserRepository:
         # 检查数据库操作是否实际命中
         assert isinstance(result, CursorResult)
         return result.rowcount
+
+    @staticmethod
+    async def change_password(db: AsyncSession, username: str, pwd: str) -> int:
+        stmt = update(User).where(User.username == username).values(password=pwd)
+
+        result = await db.execute(stmt)
+        await db.commit()
+
+        # 检查数据库操作是否实际命中
+        assert isinstance(result, CursorResult)
+        return result.rowcount
