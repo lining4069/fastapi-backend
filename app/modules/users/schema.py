@@ -50,3 +50,13 @@ class UserAuthResponse(BaseModel):
     userInfo: UserInfoResponse
 
     model_config = ConfigDict(populate_by_name=True, from_attributes=True)
+
+
+class UserUpdateRequest(BaseModel):
+    """用户更新请求请求体"""
+
+    nickname: Optional[str] = None
+    avatar: Optional[str] = None
+    gender: Optional[str] = None
+    bio: Optional[str] = None
+    phone: Optional[str] = None

@@ -1,13 +1,14 @@
 import uuid
 from datetime import datetime, timedelta
 
-from sqlalchemy import select
+from sqlalchemy import select, update
+from sqlalchemy.engine import CursorResult
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
 from app.core.security import get_hash_password
 from app.modules.users.models import User, UserToken
-from app.modules.users.schema import UserRequest
+from app.modules.users.schema import UserRequest, UserUpdateRequest
 
 
 class UserRepository:
@@ -62,3 +63,21 @@ class UserRepository:
         query = select(User).where(User.id == user_token.user_id)
         result = await db.execute(query)
         return result.scalar_one_or_none()
+
+    @staticmethod
+    async def update_user(
+        db: AsyncSession, username: str, update_data: UserUpdateRequest
+    ) -> int:
+        """更新用户信息"""
+        stmt = (
+            update(User)
+            .where(User.username == username)
+            .values(**update_data.model_dump(exclude_unset=True, exclude_none=True))
+        )
+
+        result = await db.execute(stmt)
+        await db.commit()
+
+        # 检查数据库操作是否实际命中
+        assert isinstance(result, CursorResult)
+        return result.rowcount
