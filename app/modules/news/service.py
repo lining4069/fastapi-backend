@@ -3,10 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.common.exceptions import BusinessException
 from app.common.pagination import Page, PageParams
-from app.core.logging import get_logger
 from app.modules.news.repository import CategoryRepository, NewsRepository
-
-logger = get_logger(__name__)
 
 
 class CategoryService:
