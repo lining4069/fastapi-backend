@@ -65,4 +65,15 @@ async def get_favoriate_list(
     """获取用户收藏列表"""
     logger.info("获取用户新闻收藏列表接口 '/list' 被访问")
     result = await FavoriteService.get_favorite_news(db, user, params)
-    return APIResponse.success(result)
+    return APIResponse.success(result, message="获取用户收藏列表成功")
+
+
+@router.delete("/clear", response_model=APIResponse)
+async def clear_favorite_news(
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """清除用户的新闻收藏"""
+    logger.info("清除用户新闻收藏 '/clear' 被访问")
+    clear_count = await FavoriteService.clear_favorite(db, user)
+    return APIResponse.success(data=None, message=f"共计清除用户{clear_count}条收藏。")

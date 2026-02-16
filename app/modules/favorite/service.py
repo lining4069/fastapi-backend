@@ -59,3 +59,7 @@ class FavoriteService:
         total = await FavoriteRepository.get_user_favorited_count(db, user.id)
         hasMore = params.calc_has_more(total)
         return Page(list=data, total=total, hasMore=hasMore)
+
+    @staticmethod
+    async def clear_favorite(db: AsyncSession, user: User) -> int:
+        return await FavoriteRepository.delete_user_favorite(db, user.id)

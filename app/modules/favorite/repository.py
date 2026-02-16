@@ -71,3 +71,14 @@ class FavoriteRepository:
         total = await db.execute(stmt_total)
 
         return total.scalar_one()
+
+    @staticmethod
+    async def delete_user_favorite(db: AsyncSession, user_id: int) -> int:
+        """清空用户收藏"""
+        stmt = delete(Favorite).where(Favorite.user_id == user_id)
+        result = await db.execute(stmt)
+
+        await db.commit()
+
+        assert isinstance(result, CursorResult)
+        return result.rowcount
