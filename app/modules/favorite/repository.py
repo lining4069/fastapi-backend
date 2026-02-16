@@ -1,4 +1,5 @@
-from sqlalchemy import select
+from sqlalchemy import delete, select
+from sqlalchemy.engine import CursorResult
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.modules.favorite.models import Favorite
@@ -27,3 +28,16 @@ class FavoriteRepository:
         await db.refresh(favorite)
 
         return favorite
+
+    @staticmethod
+    async def remove_favorite(db: AsyncSession, user_id: int, news_id: int) -> int:
+        """删除收藏记录"""
+        stmt = delete(Favorite).where(
+            Favorite.user_id == user_id, Favorite.news_id == news_id
+        )
+        result = await db.execute(stmt)
+
+        await db.commit()
+
+        assert isinstance(result, CursorResult)
+        return result.rowcount

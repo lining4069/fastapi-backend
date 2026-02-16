@@ -3,6 +3,16 @@ from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field, field_serializer
 
 
+class FavoriteCheckResponse(BaseModel):
+    """检查新闻收藏情况响应"""
+
+    model_config = ConfigDict(populate_by_name=True)
+
+    is_favorite: bool = Field(
+        ..., serialization_alias="isFavorite", description="是否收藏"
+    )
+
+
 class FavoriteAddRequest(BaseModel):
     """收藏请求体"""
 
