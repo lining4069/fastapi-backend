@@ -1,8 +1,9 @@
-from sqlalchemy import delete, select
+from sqlalchemy import delete, func, select
 from sqlalchemy.engine import CursorResult
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.modules.favorite.models import Favorite
+from app.modules.news.model import News
 
 
 class FavoriteRepository:
@@ -41,3 +42,32 @@ class FavoriteRepository:
 
         assert isinstance(result, CursorResult)
         return result.rowcount
+
+    @staticmethod
+    async def get_favorite_news(
+        db: AsyncSession, user_id: int, offset: int, limit: int
+    ):
+        """根据offset+limit获取收藏的新闻列表"""
+        stmt = (
+            select(
+                News,
+                Favorite.id.label("favorite_id"),
+                Favorite.created_at.label("favorite_time"),
+            )
+            .join(Favorite, News.id == Favorite.news_id)
+            .where(Favorite.user_id == user_id)
+            .order_by(Favorite.created_at.desc())
+            .offset(offset=offset)
+            .limit(limit)
+        )
+        result = await db.execute(stmt)
+
+        return result.all()
+
+    @staticmethod
+    async def get_user_favorited_count(db: AsyncSession, user_id: int) -> int:
+        """获取用户收藏总数"""
+        stmt_total = select(func.count(Favorite.id)).where(Favorite.user_id == user_id)
+        total = await db.execute(stmt_total)
+
+        return total.scalar_one()

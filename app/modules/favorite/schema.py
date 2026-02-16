@@ -32,3 +32,29 @@ class FavoriteInfoResponse(BaseModel):
         if value is None:
             return None
         return value.strftime("%Y-%m-%d %H:%M:%S")
+
+
+class FavoriteListItemResponse(BaseModel):
+    """
+    收藏列表
+    新闻Schema
+    """
+
+    model_config = ConfigDict(populate_by_name=True, from_attributes=True)
+
+    id: int
+    title: str
+    description: str
+    image: str
+    author: str
+    views: int
+    publish_time: datetime = Field(serialization_alias="publishTime")
+    category_id: int
+    favorite_id: int = Field(serialization_alias="favoriateId")
+    favorite_time: datetime = Field(serialization_alias="favoriteTime")
+
+    @field_serializer("publish_time")
+    def serialize_datetimes(self, value: datetime | None) -> None | str:
+        if value is None:
+            return None
+        return value.strftime("%Y-%m-%d %H:%M:%S")

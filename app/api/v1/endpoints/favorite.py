@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.common.auth import get_current_user
+from app.common.pagination import Page, PageParams, get_page_params
 from app.common.responses import APIResponse
 from app.core.database import get_db
 from app.core.logging import get_logger
@@ -9,6 +10,7 @@ from app.modules.favorite.schema import (
     FavoriteAddRequest,
     FavoriteCheckResponse,
     FavoriteInfoResponse,
+    FavoriteListItemResponse,
 )
 from app.modules.favorite.service import FavoriteService
 from app.modules.users.models import User
@@ -42,7 +44,7 @@ async def favorite_news(
     return APIResponse(data=result, message="新闻收藏成功")
 
 
-@router.delete("/remove")
+@router.delete("/remove", response_model=APIResponse)
 async def remove_favorite(
     news_id: int = Query(..., alias="newsId", description="新闻id"),
     user: User = Depends(get_current_user),
@@ -52,3 +54,15 @@ async def remove_favorite(
     logger.info("新闻取消收藏接口 '/remove' 被访问")
     result = await FavoriteService.remove_news_favorite(db, user, news_id)
     return APIResponse(data=result, message="新闻取消收藏成功")
+
+
+@router.get("/list", response_model=APIResponse[Page[FavoriteListItemResponse]])
+async def get_favoriate_list(
+    params: PageParams = Depends(get_page_params),
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """获取用户收藏列表"""
+    logger.info("获取用户新闻收藏列表接口 '/list' 被访问")
+    result = await FavoriteService.get_favorite_news(db, user, params)
+    return APIResponse.success(result)
