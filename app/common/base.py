@@ -6,7 +6,15 @@ from sqlalchemy import DateTime, func
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 
-class Base(DeclarativeBase):
+class ORMBase(DeclarativeBase):
+    """项目类所有sqlalchemy ORM 模型类的 最底基类"""
+
+    pass
+
+
+class Base(ORMBase):
+    __abstract__ = True
+
     # server_default 由数据库服务器生成，ORM只是声明，不参与计算。default是由sqlalchemy在session.add()添值，是应用服务器时间
     created_at: Mapped[DateTime] = mapped_column(
         DateTime,
