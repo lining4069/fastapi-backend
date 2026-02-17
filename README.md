@@ -93,6 +93,13 @@
 
 ## ⚙️ 已具备的功能
 
+### ✅ 业务模块
+
+* app/modules/users 用户
+* app/modules/news 新闻
+* app/modules/favorite 收藏
+* app/modules/view_history 浏览历史
+
 ### ✅ 配置管理
 
 * 使用 `pydantic-settings`
@@ -210,16 +217,12 @@ uvicorn app.main:app --reload
 ## 🏷 版本管理说明
 
 * 使用 **Git tag + Semantic Versioning**
-* 当前版本示例：`v0.1.0`
+* 当前版本示例：`v1.0.0`
 * 推荐 clone 指定 tag 作为新项目起点
 
 ---
 
 ## 🔮 后续可扩展方向（规划）
-
-* JWT / OAuth2 认证
-* JSON 日志（ELK / Loki）
-* 多环境配置（dev / test / prod）
 * 单元测试 / 集成测试
 * +langchain/langgraph Agent/RAG
 
