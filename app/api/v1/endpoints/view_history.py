@@ -41,3 +41,28 @@ async def get_view_history(
     logger.info("获取用户新闻收藏列表接口 '/list' 被访问")
     result = await ViewHistoryService.get_view_history(db, user, params)
     return APIResponse.success(data=result, message="获取用户浏览历史列表成功")
+
+
+@router.delete("/delete/{history_id}")
+async def delete_view_record(
+    history_id: int,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """删除单条浏览记录"""
+    logger.info("删除单条浏览记录接口 '/delete' 被访问")
+    result = await ViewHistoryService.remove_news_record(db, history_id)
+    return APIResponse.success(data=result, message="删除浏览记录成功")
+
+
+@router.delete("/clear", response_model=APIResponse)
+async def clear_favorite_news(
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """清除用户的新闻收藏"""
+    logger.info("清除用户浏览历史接口 '/clear' 被访问")
+    clear_count = await ViewHistoryService.clear_view_history(db, user)
+    return APIResponse.success(
+        data=None, message=f"清空浏览历史成功,共计清除用户{clear_count}条记录。"
+    )

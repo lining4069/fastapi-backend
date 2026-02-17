@@ -1,7 +1,8 @@
 from datetime import datetime
 from typing import Sequence, Tuple
 
-from sqlalchemy import func, select
+from sqlalchemy import delete, func, select
+from sqlalchemy.engine import CursorResult
 from sqlalchemy.engine.row import Row
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -25,10 +26,10 @@ class ViewHisttoryRepository:
     @staticmethod
     async def get_user_viewed_news(
         db: AsyncSession, user_id: int, offset: int, limit: int
-    ) -> Sequence[Row[Tuple[News, datetime]]]:
+    ) -> Sequence[Row[Tuple[News, int, datetime]]]:
         """获取用户浏览历史新闻列表"""
         stmt = (
-            select(News, ViewHistory.view_time)
+            select(News, ViewHistory.id.label("history_id"), ViewHistory.view_time)
             .join(ViewHistory, News.id == ViewHistory.news_id)
             .where(ViewHistory.user_id == user_id)
             .order_by(ViewHistory.view_time.desc())
@@ -48,3 +49,25 @@ class ViewHisttoryRepository:
         total = await db.execute(stmt_total)
 
         return total.scalar_one()
+
+    @staticmethod
+    async def remove_vied_record(db: AsyncSession, history_id: int) -> int:
+        """删除浏览记录"""
+        stmt = delete(ViewHistory).where(ViewHistory.id == history_id)
+        result = await db.execute(stmt)
+
+        await db.commit()
+
+        assert isinstance(result, CursorResult)
+        return result.rowcount
+
+    @staticmethod
+    async def delete_view_history(db: AsyncSession, user_id: int) -> int:
+        """删除用户全部浏览记录"""
+        stmt = delete(ViewHistory).where(ViewHistory.user_id == user_id)
+        result = await db.execute(stmt)
+
+        await db.commit()
+
+        assert isinstance(result, CursorResult)
+        return result.rowcount

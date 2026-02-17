@@ -25,7 +25,9 @@ class ViewHisttoryItemResponse(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
-    id: int
+    history_id: int = Field(serialization_alias="id")
+    view_time: datetime = Field(serialization_alias="viewTime")
+
     title: str
     description: str
     image: str
@@ -33,7 +35,6 @@ class ViewHisttoryItemResponse(BaseModel):
     views: int
     publish_time: datetime = Field(serialization_alias="publishTime")
     category_id: int
-    view_time: datetime = Field(serialization_alias="viewTime")
 
     @field_serializer("publish_time", "view_time")
     def serialize_datetimes(self, value: datetime | None) -> None | str:
