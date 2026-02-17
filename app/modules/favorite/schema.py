@@ -53,7 +53,7 @@ class FavoriteListItemResponse(BaseModel):
     favorite_id: int = Field(serialization_alias="favoriateId")
     favorite_time: datetime = Field(serialization_alias="favoriteTime")
 
-    @field_serializer("publish_time")
+    @field_serializer("publish_time", "favorite_time")
     def serialize_datetimes(self, value: datetime | None) -> None | str:
         if value is None:
             return None
